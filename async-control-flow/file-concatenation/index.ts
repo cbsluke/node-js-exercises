@@ -26,7 +26,7 @@ function concatFiles(files: string[], dest: string, cb: ConcatCallback) {
     });
 }
 
-// NOTE: we could handle the unknown if it was in the middle. Rather than writing content each recursion we
+// IMPROVEMENTS: we could handle the unknown if it was in the middle. Rather than writing content each recursion we
 // do the writing on completion of reading the contents. That way we won't exit in the middle
 // however main idea remains.
 concatFiles(['sample1.txt', 'sample2.txt', 'unknown.txt'], 'output.txt', (err) => {
