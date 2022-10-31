@@ -4,6 +4,9 @@ import * as path from "path";
 type Err = Error | null;
 type Callback = (err: Err, result: string[]) => void;
 
+
+// NOTE: we could clean this up by adding some helper function
+// to avoid callback hell and heavy nesting
 function listNestedFiles(dir: string, cb: Callback) {
     const result: string[] = [];
 
@@ -42,7 +45,7 @@ function listNestedFiles(dir: string, cb: Callback) {
     });
 }
 
-listNestedFiles(path.resolve(`${__dirname}/dir`), (err: Error, content: any) => {
+listNestedFiles(path.resolve(`${__dirname}/dir`), (err, content) => {
     if (err) console.error(err);
     console.log('result', content);
 });
