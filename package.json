@@ -1,6 +1,7 @@
 {
   "name": "node-js-exercises",
   "version": "1.0.0",
+  "type": "module",
   "devDependencies": {
     "@types/node": "^18.11.8"
   }
