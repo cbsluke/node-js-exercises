@@ -10,5 +10,5 @@ I have deliberately kept this a thin repo just more of a reference than anything
 
 ## How to run
 ```shell
-npx ts-node {path_to_file_index}
+npx ts-node --esm {path_to_file_index}
 ```

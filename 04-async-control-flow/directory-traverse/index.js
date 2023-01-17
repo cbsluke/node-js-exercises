@@ -3,20 +3,20 @@ import * as path from "path";
 // NOTE: we could clean this up by adding some helper function
 // to avoid callback hell and heavy nesting
 function listNestedFiles(dir, cb) {
-    var result = [];
-    fs.readdir(dir, function (err, files) {
+    const result = [];
+    fs.readdir(dir, (err, files) => {
         if (err)
             return cb(err, result);
-        var pending = files.length;
-        files.forEach(function (file) {
-            fs.lstat("".concat(dir, "/").concat(file), function (err, stats) {
+        let pending = files.length;
+        files.forEach(file => {
+            fs.lstat(`${dir}/${file}`, (err, stats) => {
                 if (err) {
                     console.log('err');
                     return cb(err, result);
                 }
                 if (stats.isDirectory()) {
-                    listNestedFiles("".concat(dir, "/").concat(file), function (err, res) {
-                        result.push.apply(result, res);
+                    listNestedFiles(`${dir}/${file}`, (err, res) => {
+                        result.push(...res);
                         pending--;
                         if (!pending) {
                             console.log(result);
@@ -36,7 +36,7 @@ function listNestedFiles(dir, cb) {
         });
     });
 }
-listNestedFiles(path.resolve("".concat(__dirname, "/dir")), function (err, content) {
+listNestedFiles(path.resolve(`${__dirname}/dir`), (err, content) => {
     if (err)
         console.error(err);
     console.log('result', content);

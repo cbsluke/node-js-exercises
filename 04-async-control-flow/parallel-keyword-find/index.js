@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 function find(file, keyword, cb) {
-    fs.readFile(path.resolve("".concat(file)), 'utf8', function (err, data) {
+    fs.readFile(path.resolve(`${file}`), 'utf8', (err, data) => {
         if (err)
             return cb(err, file);
         if (data.trim().includes(keyword))
@@ -10,14 +10,14 @@ function find(file, keyword, cb) {
     });
 }
 function findKeyword(dir, keyword, cb) {
-    var result = [];
-    fs.readdir(dir, function (err, files) {
+    const result = [];
+    fs.readdir(dir, (err, files) => {
         if (err)
             return cb(err, keyword, result);
-        var pending = files.length;
-        files.forEach(function (file) {
-            fs.lstat("".concat(dir, "/").concat(file), function (err, stats) {
-                var filePath = "".concat(dir, "/").concat(file);
+        let pending = files.length;
+        files.forEach(file => {
+            fs.lstat(`${dir}/${file}`, (err, stats) => {
+                const filePath = `${dir}/${file}`;
                 if (err) {
                     return cb(err, keyword, result);
                 }
@@ -26,7 +26,7 @@ function findKeyword(dir, keyword, cb) {
                     console.log('isDIR');
                 }
                 else {
-                    find(filePath, keyword, function (err, res) {
+                    find(filePath, keyword, (err, res) => {
                         if (err)
                             return cb(err, keyword, result);
                         if (res)
@@ -40,7 +40,7 @@ function findKeyword(dir, keyword, cb) {
         });
     });
 }
-findKeyword(path.resolve("".concat(__dirname, "/dir")), 'foo', function (err, keyword, content) {
+findKeyword(path.resolve(`${__dirname}/dir`), 'foo', (err, keyword, content) => {
     if (err)
         console.error(err);
     console.log('final', content);

@@ -1,43 +1,36 @@
 class TaskQueue {
-    private queue: any[]
-    private running: number;
-    private concurrency: number;
-
     constructor(concurrency) {
         this.concurrency = concurrency;
         this.running = 0;
         this.queue = [];
     }
-
     runTask(task) {
         return new Promise((resolve, reject) => {
             this.queue.push(async () => {
                 try {
                     resolve(await task());
-                } catch (error) {
+                }
+                catch (error) {
                     reject(error);
                 }
             });
-            process.nextTick(this.next.bind(this))
-        })
+            process.nextTick(this.next.bind(this));
+        });
     }
-
     next() {
         while (this.running < this.concurrency && this.queue.length) {
-            const task = this.queue.shift()
-            console.log('task', this.running)
-            this.running++
+            const task = this.queue.shift();
+            console.log('task', this.running);
+            this.running++;
             (async () => {
                 await task();
                 this.running--;
-                this.next()
+                this.next();
             })();
         }
     }
 }
-
-const taskQueue = new TaskQueue(2)
-
+const taskQueue = new TaskQueue(2);
 taskQueue.runTask(async () => {
     setTimeout(() => {
     }, 8000);
