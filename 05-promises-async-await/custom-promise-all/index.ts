@@ -29,7 +29,6 @@ async function PromiseAllSync<T>(tasks: Iterable<T | PromiseLike<T>>): Promise<A
 }
 
 function PromiseAllParra<T>(tasks: Array<T | PromiseLike<T>>): Promise<Awaited<T>[]> {
-
     return new Promise((resolve, reject) => {
         const results = [];
         for (const task of tasks) {
