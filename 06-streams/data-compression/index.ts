@@ -4,7 +4,7 @@
 
 import {createReadStream, createWriteStream} from "fs";
 import {createBrotliCompress, createDeflate, createGzip} from 'zlib'
-import {PassThrough} from "stream";
+import {pipeline} from "stream";
 import {hrtime} from "process";
 
 type Record = {
@@ -51,51 +51,55 @@ const actions = {
 }
 
 data.forEach((item) => {
-    const passThrough = new PassThrough();
-    const passEnd = new PassThrough();
+    const writeStream = createWriteStream(`./${fileName}.${item.name}`);
+    const actionStream = actions[item.name]();
 
-    inputStream
-        .pipe(startMonitor(passThrough, item))
-        .pipe(actions[item.name]())
-        .pipe(endMonitor(passEnd, item))
-        .pipe(createWriteStream(`./${fileName}.${item.name}`));
-});
-
-function startMonitor(stream: PassThrough, item: Record) {
-    stream.on('resume', () => {
-        console.log('started', item.name);
+    inputStream.on('open', (chunk) => {
+        console.log('opened', item.name, inputStream.bytesRead);
         item.startDate = Number(hrtime.bigint());
     });
 
-    stream.on('data', (chunk) => {
-        item.startSize += chunk.length;
+    inputStream.on('data', (chunk) => {
+        item.startSize = inputStream.bytesRead;
     });
 
-    return stream;
-}
-
-function endMonitor(stream: PassThrough, item: Record) {
-    stream.on('data', (chunk) => {
-        item.endSize += chunk.length;
+    writeStream.on('finish', () => {
+        item.endSize = writeStream.bytesWritten;
     });
 
-    stream.on('end', () => {
+    actionStream.on('finish', () => {
         const diff = Number(process.hrtime.bigint()) - item.startDate;
         const finalTime = convertHrtime(diff);
         item.finalTime = finalTime.milliseconds;
-        console.log(item);
+        console.log('finished gzip', item.name);
     });
 
-    return stream
-}
+    inputStream
+        .pipe(actionStream)
+        .pipe(writeStream);
+
+    // NOTE: can also be written like this with error handling
+    pipeline(
+        inputStream,
+        actionStream,
+        writeStream,
+        (err) => {
+            if (err) {
+                console.error('Pipeline failed', err);
+            } else {
+                console.log('Pipeline succeeded');
+            }
+        }
+    )
+});
 
 function convertHrtime(hrtime) {
-	const milliseconds = hrtime / 1000000;
-	const seconds = hrtime / 1000000000;
+    const milliseconds = hrtime / 1000000;
+    const seconds = hrtime / 1000000000;
 
-	return {
-		seconds,
-		milliseconds,
+    return {
+        seconds,
+        milliseconds,
         nanoSeconds: hrtime
-	};
+    };
 }
